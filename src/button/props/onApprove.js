@@ -15,6 +15,7 @@ export type XOnApproveDataType = {|
     orderID : string,
     payerID : ?string,
     paymentID : ?string,
+    subscriptionId : ?string,
     billingToken : ?string
 |};
 
@@ -79,7 +80,8 @@ function buildXApproveActions({ intent, orderID, restart } : { orderID : string,
 export type OnApproveData = {|
     payerID? : ?string,
     paymentID ? : ? string,
-    billingToken ? : ? string
+    billingToken ? : ? string,
+    subscriptionId : ?string
 |};
 
 export type OnApproveActions = {|
@@ -90,10 +92,11 @@ export type OnApprove = (OnApproveData, OnApproveActions) => ZalgoPromise<void>;
 
 export function getOnApprove(xprops : XProps, { createOrder } : { createOrder : CreateOrder }) : OnApprove {
     const { onApprove, onError, intent } = xprops;
-
-    return memoize(({ payerID, paymentID, billingToken }, { restart }) => {
+debugger;
+    return memoize(({ payerID, paymentID, billingToken, subscriptionId }, { restart }) => {
         return createOrder().then(orderID => {
-            return onApprove({ orderID, payerID, paymentID, billingToken }, buildXApproveActions({ orderID, intent, restart })).catch(err => {
+            debugger;
+            return onApprove({ orderID, payerID, paymentID, billingToken, subscriptionId }, buildXApproveActions({ orderID, intent, restart })).catch(err => {
                 return onError(err);
             });
         });

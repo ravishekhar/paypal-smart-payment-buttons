@@ -15,6 +15,7 @@ import type { OnShippingChange, XOnShippingChange } from './onShippingChange';
 import type { OnAuth } from './onAuth';
 import type { XOnError, OnError } from './onError';
 import type { XGetPopupBridge, GetPopupBridge } from './getPopupBridge';
+import type { XCreateSubscription } from './createSubscription';
 
 export type PrerenderDetailsType = {|
     win ? : ? ProxyWindow,
@@ -42,11 +43,12 @@ export type XProps = {|
 
     createOrder : ?XCreateOrder,
     createBillingAgreement : ?XCreateBillingAgreement,
+    createSubscription : ?XCreateSubscription,
 
     getPrerenderDetails : () => ZalgoPromise<PrerenderDetailsType>,
     getPopupBridge : XGetPopupBridge,
     remember : ($ReadOnlyArray<$Values<typeof FUNDING>>) => ZalgoPromise<void>,
-    
+
     onInit : XOnInit,
     onApprove : XOnApprove,
     onCancel : XOnCancel,
@@ -84,7 +86,8 @@ export type GlobalProps = {|
 export type ButtonCallbackProps = {|
     createOrder : CreateOrder,
     createBillingAgreement : ?CreateBillingAgreement,
-    
+    createSubscription : ?XCreateSubscription,
+
     onApprove : OnApprove,
 
     onCancel : OnCancel,
