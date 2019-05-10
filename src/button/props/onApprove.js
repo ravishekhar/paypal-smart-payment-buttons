@@ -92,10 +92,8 @@ export type OnApprove = (OnApproveData, OnApproveActions) => ZalgoPromise<void>;
 
 export function getOnApprove(xprops : XProps, { createOrder } : { createOrder : CreateOrder }) : OnApprove {
     const { onApprove, onError, intent } = xprops;
-debugger;
     return memoize(({ payerID, paymentID, billingToken, subscriptionId }, { restart }) => {
         return createOrder().then(orderID => {
-            debugger;
             return onApprove({ orderID, payerID, paymentID, billingToken, subscriptionId }, buildXApproveActions({ orderID, intent, restart })).catch(err => {
                 return onError(err);
             });

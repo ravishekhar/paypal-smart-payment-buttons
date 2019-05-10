@@ -81,6 +81,7 @@ export function getButtonCallbackProps({ xprops } : {| xprops : XProps |}) : But
     return {
         createOrder,
         createBillingAgreement,
+        createSubscription,
         onApprove,
         onCancel,
         onClick,

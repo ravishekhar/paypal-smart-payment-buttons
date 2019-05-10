@@ -2,8 +2,16 @@
 
 import type { ZalgoPromise } from "zalgo-promise/src";
 import { request } from "belter/src";
-import { CREATE_SUBSCRIPTIONS_API_URL, REVISE_SUBSCRIPTIONS_API_URL, GET_SUBSCRIPTIONS_API_URL, ACTIVATE_SUBSCRIPTIONS_API_URL } from '../config';
+import {
+    CREATE_SUBSCRIPTIONS_API_URL,
+    REVISE_SUBSCRIPTIONS_API_URL,
+    GET_SUBSCRIPTIONS_API_URL,
+    ACTIVATE_SUBSCRIPTIONS_API_URL
+} from '../config';
 import { FPTI_STATE, FPTI_TRANSITION, FPTI_CONTEXT_TYPE } from '../constants';
+import { FPTI_KEY } from '@paypal/sdk-constants/src';
+
+import { getLogger } from '../lib';
 
 export type SubscriptionCreateRequest = {|
     plan_id?: string,
@@ -47,7 +55,7 @@ export function createSubscription(accessToken: string, subscriptionPayload: Sub
         url: CREATE_SUBSCRIPTIONS_API_URL,
         headers,
         json: subscriptionPayload
-    }).then(({ body }): string => {
+    }).then((body): string => {
 
         if (!body || !body.id) {
             throw new Error(`Create Subscription Api response error:\n\n${JSON.stringify(body, null, 4)}`);
@@ -86,10 +94,10 @@ export function reviseSubscription(accessToken: string, subscriptionPayload: Sub
         url: REVISE_SUBSCRIPTIONS_API_URL,
         headers,
         json: subscriptionPayload
-    }).then(({ body }): string => {
+    }).then(({ body, status }): string => {
 
-        if (!body || !body.id) {
-            throw new Error(`Order Api response error:\n\n${JSON.stringify(body, null, 4)}`);
+        if (status !== 200) {
+            throw new Error(`Revise Subscription Api HTTP-${status} response: error:\n\n${JSON.stringify(body, null, 4)}`);
         }
 
         getLogger().track({
@@ -125,10 +133,10 @@ export function activateSubscription(accessToken: string, subscriptionPayload: S
         url: ACTIVATE_SUBSCRIPTIONS_API_URL,
         headers,
         json: subscriptionPayload
-    }).then(({ body }): string => {
+    }).then(({ body, status }): string => {
 
-        if (!body || !body.id) {
-            throw new Error(`Order Api response error:\n\n${JSON.stringify(body, null, 4)}`);
+        if (status !== 204) {
+            throw new Error(`Activate Api HTTP-${status} response: error:\n\n${JSON.stringify(body, null, 4)}`);
         }
 
         getLogger().track({
@@ -160,14 +168,14 @@ export function getSubscription(accessToken: string, subscriptionPayload: Subscr
     };
 
     return request({
-        method: `post`,
-        url: CREATE_SUBSCRIPTIONS_API_URL,
+        method: `get`,
+        url: GET_SUBSCRIPTIONS_API_URL,
         headers,
         json: subscriptionPayload
     }).then(({ body }): string => {
 
         if (!body || !body.id) {
-            throw new Error(`Order Api response error:\n\n${JSON.stringify(body, null, 4)}`);
+            throw new Error(`Get Subscription Api response error:\n\n${JSON.stringify(body, null, 4)}`);
         }
 
         getLogger().track({
