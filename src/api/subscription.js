@@ -75,7 +75,7 @@ export function createSubscription(accessToken: string, subscriptionPayload: Sub
     });
 }
 
-export function reviseSubscription(accessToken: string, subscriptionPayload: SubscriptionCreateRequest): ZalgoPromise<string> {
+export function reviseSubscription(accessToken: string, subscriptionId: string, subscriptionPayload: SubscriptionCreateRequest): ZalgoPromise<string> {
     getLogger().info(`rest_api_create_subscription_id`);
 
     if (!accessToken) {
@@ -93,7 +93,7 @@ export function reviseSubscription(accessToken: string, subscriptionPayload: Sub
 
     return request({
         method: `post`,
-        url: REVISE_SUBSCRIPTIONS_API_URL,
+        url: `${CREATE_SUBSCRIPTIONS_API_URL}/${subscriptionId}/revise`,
         headers,
         json: subscriptionPayload
     }).then(({ body, status }): string => {
@@ -106,11 +106,11 @@ export function reviseSubscription(accessToken: string, subscriptionPayload: Sub
             [FPTI_KEY.STATE]: FPTI_STATE.BUTTON,
             [FPTI_KEY.TRANSITION]: FPTI_TRANSITION.REVISE_SUBSCRIPTION,
             [FPTI_KEY.CONTEXT_TYPE]: FPTI_CONTEXT_TYPE.SUBSCRIPTION_ID,
-            [FPTI_KEY.TOKEN]: body.id,
-            [FPTI_KEY.CONTEXT_ID]: body.id
+            [FPTI_KEY.TOKEN]: subscriptionId,
+            [FPTI_KEY.CONTEXT_ID]: subscriptionId
         });
-
-        return body.id;
+        // for revision flow the same subscription id is returned
+        return subscriptionId;
     });
 }
 

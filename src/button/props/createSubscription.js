@@ -29,9 +29,9 @@ export function buildXCreateSubscriptionActions({ clientID }: { clientID: string
         });
     };
 
-    const revise = (data) => {
+    const revise = (subscriptionId, data) => {
         return createAccessToken(clientID).then(accessToken => {
-            return reviseSubscription(accessToken, data);
+            return reviseSubscription(accessToken, subscriptionId, data);
         });
     };
 
