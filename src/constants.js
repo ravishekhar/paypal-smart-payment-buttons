@@ -69,6 +69,7 @@ export const FPTI_STATE = {
 };
 
 export const FPTI_TRANSITION = {
+    BUTTON_LOAD:  ('process_button_load' : 'process_button_load'),
     CREATE_ORDER: ('process_create_order' : 'process_create_order'),
     CREATE_SUBSCRIPTION: ('process_create_subscription' : 'process_create_subscription'),
     REVISE_SUBSCRIPTION: ('process_revise_subscription' : 'process_revise_subscription')
