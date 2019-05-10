@@ -4,7 +4,7 @@ import { type ZalgoPromise } from 'zalgo-promise/src';
 import { memoize } from 'belter/src';
 import { INTENT, SDK_QUERY_KEYS } from '@paypal/sdk-constants/src';
 
-import { type OrderResponse, getOrder, captureOrder, authorizeOrder, patchOrder } from '../../api';
+import { type OrderResponse, getOrder, captureOrder, authorizeOrder, patchOrder, getSubscription, activateSubscription } from '../../api';
 import { ORDER_API_ERROR } from '../../constants';
 import { unresolvedPromise } from '../../lib';
 
@@ -31,7 +31,7 @@ export type XOnApproveActionsType = {|
 
 export type XOnApprove = (XOnApproveDataType, XOnApproveActionsType) => ZalgoPromise<void>;
 
-function buildXApproveActions({ intent, orderID, restart } : { orderID : string, restart : () => ZalgoPromise<void>, intent : $Values<typeof INTENT> }) : XOnApproveActionsType {
+function buildXApproveActions({ intent, orderID, restart, subscriptionId } : { orderID : string, restart : () => ZalgoPromise<void>, intent : $Values<typeof INTENT>, subscriptionId : string }) : XOnApproveActionsType {
 
     const handleProcessorError = (err : mixed) : ZalgoPromise<OrderResponse> => {
         // $FlowFixMe
@@ -71,8 +71,13 @@ function buildXApproveActions({ intent, orderID, restart } : { orderID : string,
             throw new Error('Order could not be patched');
         });
 
+    // Subscription GET Actions
+    const getSubscriptionApi = memoize(() => getSubscription(subscriptionId));
+    const activateSubscriptionApi = memoize(() => activateSubscription(subscriptionId));
+
     return {
         order: { capture, authorize, patch, get },
+        subscription: { get: getSubscriptionApi, activate: activateSubscriptionApi },
         restart
     };
 }
@@ -94,7 +99,7 @@ export function getOnApprove(xprops : XProps, { createOrder } : { createOrder : 
     const { onApprove, onError, intent } = xprops;
     return memoize(({ payerID, paymentID, billingToken, subscriptionId }, { restart }) => {
         return createOrder().then(orderID => {
-            return onApprove({ orderID, payerID, paymentID, billingToken, subscriptionId }, buildXApproveActions({ orderID, intent, restart })).catch(err => {
+            return onApprove({ orderID, payerID, paymentID, billingToken, subscriptionId }, buildXApproveActions({ orderID, intent, restart, subscriptionId })).catch(err => {
                 return onError(err);
             });
         });
