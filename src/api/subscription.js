@@ -55,7 +55,7 @@ export function createSubscription(accessToken: string, subscriptionPayload: Sub
         url: CREATE_SUBSCRIPTIONS_API_URL,
         headers,
         json: subscriptionPayload
-    }).then((body): string => {
+    }).then(({ body }): string => {
 
         if (!body || !body.id) {
             throw new Error(`Create Subscription Api response error:\n\n${JSON.stringify(body, null, 4)}`);
@@ -102,7 +102,7 @@ export function reviseSubscription(accessToken: string, subscriptionPayload: Sub
 
         getLogger().track({
             [FPTI_KEY.STATE]: FPTI_STATE.BUTTON,
-            [FPTI_KEY.TRANSITION]: FPTI_TRANSITION.CREATE_SUBSCRIPTION,
+            [FPTI_KEY.TRANSITION]: FPTI_TRANSITION.REVISE_SUBSCRIPTION,
             [FPTI_KEY.CONTEXT_TYPE]: FPTI_CONTEXT_TYPE.SUBSCRIPTION_ID,
             [FPTI_KEY.TOKEN]: body.id,
             [FPTI_KEY.CONTEXT_ID]: body.id
