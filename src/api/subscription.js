@@ -65,6 +65,10 @@ export function reviseSubscription(accessToken : string, subscriptionID : string
         throw new Error(`Access token not passed`);
     }
 
+    if (!subscriptionID) {
+        throw new Error(`Expected subscription id to be passed as first argument to revise subscription api`);
+    }
+
     if (!subscriptionPayload) {
         throw new Error(`Expected subscription payload to be passed`);
     }
