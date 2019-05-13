@@ -76,7 +76,7 @@ function buildXApproveActions({ intent, orderID, restart, subscriptionId } : { o
     const activateSubscriptionApi = memoize(() => activateSubscription(subscriptionId));
 
     return {
-        order: { capture, authorize, patch, get },
+        order:        { capture, authorize, patch, get },
         subscription: { get: getSubscriptionApi, activate: activateSubscriptionApi },
         restart
     };

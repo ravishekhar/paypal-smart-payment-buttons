@@ -16,7 +16,7 @@ export const API_URI = {
     ORDER:          `${ BASE_SMART_API_URL }/order`,
     PAYMENT:        `${ BASE_SMART_API_URL }/payment`,
     SUBSCRIPTION:   `${ BASE_SMART_API_URL }/billagmt/subscriptions`,
-    GRAPHQL:  '/graphql'
+    GRAPHQL:        '/graphql'
 };
 
 export const EXPERIENCE_URI = {

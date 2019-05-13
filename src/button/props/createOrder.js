@@ -43,7 +43,7 @@ export function buildXCreateOrderActions({ clientID } : { clientID : string }) :
 
 export type CreateOrder = () => ZalgoPromise<string>;
 
-export function getCreateOrder(xprops: XProps, { createBillingAgreement, createSubscription }: { createBillingAgreement: ?CreateBillingAgreement, createSubscription: ?CreateSubscription }): CreateOrder {
+export function getCreateOrder(xprops : XProps, { createBillingAgreement, createSubscription } : { createBillingAgreement : ?CreateBillingAgreement, createSubscription : ?CreateSubscription }) : CreateOrder {
     const { createOrder, clientID } = xprops;
 
     return memoize(() => {

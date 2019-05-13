@@ -45,7 +45,7 @@ type VaultSetupEligibleProps = {|
     fundingEligibility : Object,
     fundingSource : $Values<typeof FUNDING>,
     createBillingAgreement : ?CreateBillingAgreement,
-    createSubscription : ?CreateSubscription,
+    createSubscription : ?CreateSubscription
 |};
 
 function isVaultSetupEligible({ vault, clientAccessToken, fundingEligibility, fundingSource, createBillingAgreement, createSubscription } : VaultSetupEligibleProps) : boolean {
@@ -85,7 +85,7 @@ type EnableVaultSetupOptions = {|
     fundingEligibility : FundingEligibilityType,
     fundingSource : $Values<typeof FUNDING>,
     createBillingAgreement : ?CreateBillingAgreement,
-    createSubscription : ?CreateSubscription,
+    createSubscription : ?CreateSubscription
 |};
 
 function enableVaultSetup({ orderID, vault, clientAccessToken, fundingEligibility, fundingSource, createBillingAgreement, createSubscription } : EnableVaultSetupOptions) : ZalgoPromise<void> {
