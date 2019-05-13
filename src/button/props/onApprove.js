@@ -26,7 +26,7 @@ export type XOnApproveActionsType = {|
         patch : () => ZalgoPromise<OrderResponse>,
         get : () => ZalgoPromise<OrderResponse>
     },
-    subscriptions : {
+    subscription : {
         get : () => ZalgoPromise<SubscriptionResponse>,
         activate : () => ZalgoPromise<SubscriptionResponse>
     },
@@ -81,7 +81,7 @@ function buildXApproveActions({ intent, orderID, restart, subscriptionID } : { o
 
     return {
         order:         { capture, authorize, patch, get },
-        subscriptions: { get: getSubscriptionApi, activate: activateSubscriptionApi },
+        subscription: { get: getSubscriptionApi, activate: activateSubscriptionApi },
         restart
     };
 }

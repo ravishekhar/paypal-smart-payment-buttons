@@ -4,9 +4,6 @@ export const LOGGER_URL = '/xoplatform/logger/api/logger';
 export const AUTH_API_URL = '/v1/oauth2/token';
 export const ORDERS_API_URL = '/v2/checkout/orders';
 export const CREATE_SUBSCRIPTIONS_API_URL = '/v1/billing/subscriptions';
-export const REVISE_SUBSCRIPTIONS_API_URL = '/v1/billing/subscriptions/:subscription_id/revise';
-export const ACTIVATE_SUBSCRIPTIONS_API_URL = '/v1/billing/subscriptions/:subscription_id/activate';
-export const GET_SUBSCRIPTIONS_API_URL = '/v1/billing/subscriptions/:subscription_id';
 export const VALIDATE_PAYMENT_METHOD_API = 'validate-payment-method';
 
 export const BASE_SMART_API_URL = '/smart/api';

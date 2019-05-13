@@ -10,7 +10,7 @@ import type { XProps } from './types';
 export type XCreateSubscriptionDataType = {||};
 
 export type XCreateSubscriptionActionsType = {|
-    subscriptions : {
+    subscription : {
         create : (Object) => ZalgoPromise<string>,
         revise : (string, Object) => ZalgoPromise<string>
     }
@@ -37,7 +37,7 @@ export function buildXCreateSubscriptionActions({ clientID } : { clientID : stri
     };
 
     return {
-        subscriptions: { create, revise }
+        subscription: { create, revise }
     };
 }
 
