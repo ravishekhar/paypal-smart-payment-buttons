@@ -2,33 +2,27 @@
 
 import type { ZalgoPromise } from 'zalgo-promise/src';
 import { request } from 'belter/src';
-import { FPTI_KEY } from '@paypal/sdk-constants/src';
 
 import { CREATE_SUBSCRIPTIONS_API_URL, API_URI } from '../config';
-import { FPTI_STATE, FPTI_TRANSITION, FPTI_CONTEXT_TYPE } from '../constants';
 import { getLogger } from '../lib';
 
 import { callSmartAPI } from './api';
 
 export type SubscriptionCreateRequest = {|
-    plan_id? : string,
-    start_time : string,
-    quantity : string,
-    shipping_amount : $ReadOnlyArray<{
+    plan_id : string,
+    start_time? : string,
+    quantity? : string,
+    shipping_amount? : {
         currency_code : string,
         value : string
-    }>,
-    auto_renewal : boolean,
-    application_context : $ReadOnlyArray<{
-        brand_name : string,
-        locale : string,
-        shipping_preference : 'SET_PROVIDED_ADDRESS' | 'USE_FROM_FILE' | 'NO_SHIPPING',
-        user_action : 'SUBSCRIBE_NOW' | 'CONTINUE',
-        payment_method : {
-            payer_selected : 'PAYPAL',
-            payee_preferred : 'IMMEDIATE_PAYMENT_REQUIRED'
-        }
-    }>
+    },
+    auto_renewal? : boolean,
+    application_context? : {
+        brand_name? : string,
+        locale? : string,
+        shipping_preference? : string,
+        user_action? : string
+    }
 |};
 
 export type SubscriptionResponse = {||};
@@ -60,15 +54,6 @@ export function createSubscription(accessToken : string, subscriptionPayload : S
         if (!body || !body.id) {
             throw new Error(`Create Subscription Api response error:\n\n${ JSON.stringify(body, null, 4) }`);
         }
-
-        getLogger().track({
-            [FPTI_KEY.STATE]:        FPTI_STATE.BUTTON,
-            [FPTI_KEY.TRANSITION]:   FPTI_TRANSITION.CREATE_SUBSCRIPTION,
-            [FPTI_KEY.CONTEXT_TYPE]: FPTI_CONTEXT_TYPE.SUBSCRIPTION_ID,
-            [FPTI_KEY.TOKEN]:        body.id,
-            [FPTI_KEY.CONTEXT_ID]:   body.id
-        });
-
         return body.id;
     });
 }
@@ -99,14 +84,6 @@ export function reviseSubscription(accessToken : string, subscriptionID : string
         if (status !== 200) {
             throw new Error(`Revise Subscription Api HTTP-${ status } response: error:\n\n${ JSON.stringify(body, null, 4) }`);
         }
-
-        getLogger().track({
-            [FPTI_KEY.STATE]:        FPTI_STATE.BUTTON,
-            [FPTI_KEY.TRANSITION]:   FPTI_TRANSITION.REVISE_SUBSCRIPTION,
-            [FPTI_KEY.CONTEXT_TYPE]: FPTI_CONTEXT_TYPE.SUBSCRIPTION_ID,
-            [FPTI_KEY.TOKEN]:        subscriptionID,
-            [FPTI_KEY.CONTEXT_ID]:   subscriptionID
-        });
         // for revision flow the same subscription id is returned
         return subscriptionID;
     });

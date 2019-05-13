@@ -61,8 +61,7 @@ export const PRODUCT_FLOW = {
 
 export const FPTI_CONTEXT_TYPE = {
     BUTTON_SESSION_ID: ('button_session_id' : 'button_session_id'),
-    ORDER_ID:          ('EC-Token' : 'EC-Token'),
-    SUBSCRIPTION_ID:   ('subscription_id' : 'subscription_id')
+    ORDER_ID:          ('EC-Token' : 'EC-Token')
 };
 
 export const FPTI_STATE = {
@@ -70,8 +69,6 @@ export const FPTI_STATE = {
 };
 
 export const FPTI_TRANSITION = {
-    BUTTON_LOAD:         ('process_button_load' : 'process_button_load'),
-    CREATE_ORDER:        ('process_create_order' : 'process_create_order'),
-    CREATE_SUBSCRIPTION: ('process_create_subscription' : 'process_create_subscription'),
-    REVISE_SUBSCRIPTION: ('process_revise_subscription' : 'process_revise_subscription')
+    BUTTON_LOAD:  ('process_button_load' : 'process_button_load'),
+    CREATE_ORDER: ('process_create_order' : 'process_create_order')
 };
