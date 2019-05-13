@@ -4,7 +4,7 @@ import { type ZalgoPromise } from 'zalgo-promise/src';
 import { memoize } from 'belter/src';
 import { INTENT, SDK_QUERY_KEYS } from '@paypal/sdk-constants/src';
 
-import { type OrderResponse, getOrder, captureOrder, authorizeOrder, patchOrder, getSubscription, activateSubscription } from '../../api';
+import { type OrderResponse, getOrder, captureOrder, authorizeOrder, patchOrder, getSubscription, activateSubscription, type SubscriptionResponse } from '../../api';
 import { ORDER_API_ERROR } from '../../constants';
 import { unresolvedPromise } from '../../lib';
 
@@ -15,7 +15,7 @@ export type XOnApproveDataType = {|
     orderID : string,
     payerID : ?string,
     paymentID : ?string,
-    subscriptionId : ?string,
+    subscriptionID : ?string,
     billingToken : ?string
 |};
 
@@ -26,12 +26,16 @@ export type XOnApproveActionsType = {|
         patch : () => ZalgoPromise<OrderResponse>,
         get : () => ZalgoPromise<OrderResponse>
     },
+    subscriptions : {
+        get : () => ZalgoPromise<SubscriptionResponse>,
+        activate : () => ZalgoPromise<SubscriptionResponse>
+    },
     restart : () => ZalgoPromise<void>
 |};
 
 export type XOnApprove = (XOnApproveDataType, XOnApproveActionsType) => ZalgoPromise<void>;
 
-function buildXApproveActions({ intent, orderID, restart, subscriptionId } : { orderID : string, restart : () => ZalgoPromise<void>, intent : $Values<typeof INTENT>, subscriptionId : string }) : XOnApproveActionsType {
+function buildXApproveActions({ intent, orderID, restart, subscriptionID } : { orderID : string, restart : () => ZalgoPromise<void>, intent : $Values<typeof INTENT>, subscriptionID : string }) : XOnApproveActionsType {
 
     const handleProcessorError = (err : mixed) : ZalgoPromise<OrderResponse> => {
         // $FlowFixMe
@@ -72,12 +76,12 @@ function buildXApproveActions({ intent, orderID, restart, subscriptionId } : { o
         });
 
     // Subscription GET Actions
-    const getSubscriptionApi = memoize(() => getSubscription(subscriptionId));
-    const activateSubscriptionApi = memoize(() => activateSubscription(subscriptionId));
+    const getSubscriptionApi = memoize(() => getSubscription(subscriptionID));
+    const activateSubscriptionApi = memoize(() => activateSubscription(subscriptionID));
 
     return {
-        order:        { capture, authorize, patch, get },
-        subscription: { get: getSubscriptionApi, activate: activateSubscriptionApi },
+        order:         { capture, authorize, patch, get },
+        subscriptions: { get: getSubscriptionApi, activate: activateSubscriptionApi },
         restart
     };
 }
@@ -86,7 +90,7 @@ export type OnApproveData = {|
     payerID? : ?string,
     paymentID ? : ? string,
     billingToken ? : ? string,
-    subscriptionId : ?string
+    subscriptionID ? : ?string
 |};
 
 export type OnApproveActions = {|
@@ -97,9 +101,9 @@ export type OnApprove = (OnApproveData, OnApproveActions) => ZalgoPromise<void>;
 
 export function getOnApprove(xprops : XProps, { createOrder } : { createOrder : CreateOrder }) : OnApprove {
     const { onApprove, onError, intent } = xprops;
-    return memoize(({ payerID, paymentID, billingToken, subscriptionId }, { restart }) => {
+    return memoize(({ payerID, paymentID, billingToken, subscriptionID }, { restart }) => {
         return createOrder().then(orderID => {
-            return onApprove({ orderID, payerID, paymentID, billingToken, subscriptionId }, buildXApproveActions({ orderID, intent, restart, subscriptionId })).catch(err => {
+            return onApprove({ orderID, payerID, paymentID, billingToken, subscriptionID }, buildXApproveActions({ orderID, intent, restart, subscriptionID })).catch(err => {
                 return onError(err);
             });
         });

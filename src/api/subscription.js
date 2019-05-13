@@ -9,7 +9,6 @@ import { FPTI_STATE, FPTI_TRANSITION, FPTI_CONTEXT_TYPE } from '../constants';
 import { getLogger } from '../lib';
 
 import { callSmartAPI } from './api';
-import type { OrderResponse } from './order';
 
 export type SubscriptionCreateRequest = {|
     plan_id? : string,
@@ -31,6 +30,9 @@ export type SubscriptionCreateRequest = {|
         }
     }>
 |};
+
+export type SubscriptionResponse = {||};
+
 
 export function createSubscription(accessToken : string, subscriptionPayload : SubscriptionCreateRequest) : ZalgoPromise<string> {
     getLogger().info(`rest_api_create_subscription_id`);
@@ -71,7 +73,7 @@ export function createSubscription(accessToken : string, subscriptionPayload : S
     });
 }
 
-export function reviseSubscription(accessToken : string, subscriptionId : string, subscriptionPayload : SubscriptionCreateRequest) : ZalgoPromise<string> {
+export function reviseSubscription(accessToken : string, subscriptionID : string, subscriptionPayload : ?SubscriptionCreateRequest) : ZalgoPromise<string> {
     getLogger().info(`rest_api_create_subscription_id`);
 
     if (!accessToken) {
@@ -89,7 +91,7 @@ export function reviseSubscription(accessToken : string, subscriptionId : string
 
     return request({
         method: `post`,
-        url:    `${ CREATE_SUBSCRIPTIONS_API_URL }/${ subscriptionId }/revise`,
+        url:    `${ CREATE_SUBSCRIPTIONS_API_URL }/${ subscriptionID }/revise`,
         headers,
         json:   subscriptionPayload
     }).then(({ body, status }) : string => {
@@ -102,24 +104,24 @@ export function reviseSubscription(accessToken : string, subscriptionId : string
             [FPTI_KEY.STATE]:        FPTI_STATE.BUTTON,
             [FPTI_KEY.TRANSITION]:   FPTI_TRANSITION.REVISE_SUBSCRIPTION,
             [FPTI_KEY.CONTEXT_TYPE]: FPTI_CONTEXT_TYPE.SUBSCRIPTION_ID,
-            [FPTI_KEY.TOKEN]:        subscriptionId,
-            [FPTI_KEY.CONTEXT_ID]:   subscriptionId
+            [FPTI_KEY.TOKEN]:        subscriptionID,
+            [FPTI_KEY.CONTEXT_ID]:   subscriptionID
         });
         // for revision flow the same subscription id is returned
-        return subscriptionId;
+        return subscriptionID;
     });
 }
 
-export function activateSubscription(subscriptionId : string) : ZalgoPromise<OrderResponse> {
+export function activateSubscription(subscriptionID : string) : ZalgoPromise<SubscriptionResponse> {
     return callSmartAPI({
         method: `post`,
-        url:    `${ API_URI.SUBSCRIPTION }/${ subscriptionId }/activate`
+        url:    `${ API_URI.SUBSCRIPTION }/${ subscriptionID }/activate`
     });
 }
 
 
-export function getSubscription(subscriptionId : string) : ZalgoPromise<OrderResponse> {
+export function getSubscription(subscriptionID : string) : ZalgoPromise<SubscriptionResponse> {
     return callSmartAPI({
-        url: `${ API_URI.SUBSCRIPTION }/${ subscriptionId }`
+        url: `${ API_URI.SUBSCRIPTION }/${ subscriptionID }`
     });
 }

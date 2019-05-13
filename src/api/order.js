@@ -182,10 +182,10 @@ export function billingTokenToOrderID(billingToken : string) : ZalgoPromise<stri
     });
 }
 
-export function subscriptionIdToCartId(subscriptionId : string) : ZalgoPromise<string> {
+export function subscriptionIdToCartId(subscriptionID : string) : ZalgoPromise<string> {
     return callSmartAPI({
         method: 'post',
-        url:    `${ API_URI.SUBSCRIPTION }/${ subscriptionId }/cartid`
+        url:    `${ API_URI.SUBSCRIPTION }/${ subscriptionID }/cartid`
     }).then(data => {
         return data.token;
     });

@@ -112,7 +112,7 @@ type CheckoutProps= {|
     buyerCountry : $Values<typeof COUNTRY>,
     createOrder : CreateOrder,
     createBillingAgreement : ?CreateBillingAgreement,
-    createSubscription : ?CreateBillingAgreement,
+    createSubscription : ?CreateSubscription,
     onApprove : OnApprove,
     onCancel : OnCancel,
     onAuth : OnAuth,
@@ -173,11 +173,11 @@ export function initCheckout(props : CheckoutProps) : CheckoutInstance {
             });
         },
 
-        onApprove: ({ payerID, paymentID, billingToken, subscriptionId }) => {
+        onApprove: ({ payerID, paymentID, billingToken, subscriptionID }) => {
             approved = true;
 
             return closeCheckout().then(() => {
-                return onApprove({ payerID, paymentID, billingToken, subscriptionId }, { restart });
+                return onApprove({ payerID, paymentID, billingToken, subscriptionID }, { restart });
             });
         },
 
@@ -190,7 +190,7 @@ export function initCheckout(props : CheckoutProps) : CheckoutInstance {
                 }
             });
         },
-        
+
         onError,
         onAuth,
         onClose,

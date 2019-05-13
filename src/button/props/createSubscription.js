@@ -12,7 +12,7 @@ export type XCreateSubscriptionDataType = {||};
 export type XCreateSubscriptionActionsType = {|
     subscriptions : {
         create : (Object) => ZalgoPromise<string>,
-        revise : (Object) => ZalgoPromise<string>
+        revise : (string, Object) => ZalgoPromise<string>
     }
 |};
 
@@ -30,14 +30,14 @@ export function buildXCreateSubscriptionActions({ clientID } : { clientID : stri
         });
     };
 
-    const revise = (subscriptionId, data) => {
+    const revise = (subscriptionID : string, data) => {
         return createAccessToken(clientID).then(accessToken => {
-            return reviseSubscription(accessToken, subscriptionId, data);
+            return reviseSubscription(accessToken, subscriptionID, data);
         });
     };
 
     return {
-        subscription: { create, revise }
+        subscriptions: { create, revise }
     };
 }
 
