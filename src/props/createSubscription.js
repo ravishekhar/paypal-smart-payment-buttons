@@ -20,9 +20,9 @@ export function buildXCreateSubscriptionData() : XCreateSubscriptionDataType {
     return {};
 }
 
-export function buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID } : {| facilitatorAccessToken : string, partnerAttributionID : ?string |}) : XCreateSubscriptionActionsType {
+export function buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID, merchantID, clientID } : {| facilitatorAccessToken : string, partnerAttributionID : ?string |}) : XCreateSubscriptionActionsType {
     const create = (data) => {
-        return createSubcriptionID(facilitatorAccessToken, data, { partnerAttributionID });
+        return createSubcriptionID(facilitatorAccessToken, data, { partnerAttributionID, merchantID, clientID });
     };
 
     const revise = (subscriptionID : string, data) => {
@@ -41,10 +41,10 @@ type CreateSubscriptionXProps = {|
     partnerAttributionID : ?string
 |};
 
-export function getCreateSubscription({ createSubscription, partnerAttributionID } : CreateSubscriptionXProps, { facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : ?CreateSubscription {
+export function getCreateSubscription({ createSubscription, partnerAttributionID, merchantID, clientID } : CreateSubscriptionXProps, { facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : ?CreateSubscription {
     if (createSubscription) {
         return () => {
-            return createSubscription(buildXCreateSubscriptionData(), buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID })).then(subscriptionID => {
+            return createSubscription(buildXCreateSubscriptionData(), buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID, merchantID, clientID })).then(subscriptionID => {
                 if (!subscriptionID || typeof subscriptionID !== 'string') {
                     throw new Error(`Expected an subscription id to be passed to createSubscription`);
                 }

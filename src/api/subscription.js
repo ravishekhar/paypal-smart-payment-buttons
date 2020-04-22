@@ -7,6 +7,7 @@ import { CREATE_SUBSCRIPTIONS_API_URL, SMART_API_URI } from '../config';
 import { getLogger } from '../lib';
 
 import { callSmartAPI } from './api';
+import { createAccessToken } from './auth';
 
 export type SubscriptionCreateRequest = {|
     plan_id : string,
@@ -31,9 +32,8 @@ type SubsriptionOptions = {|
     partnerAttributionID : ?string
 |};
 
-export function createSubscription(accessToken : string, subscriptionPayload : SubscriptionCreateRequest, { partnerAttributionID } : SubsriptionOptions) : ZalgoPromise<string> {
+export function createSubscription(accessToken : string, subscriptionPayload : SubscriptionCreateRequest, { partnerAttributionID, merchantID, clientID } : SubsriptionOptions) : ZalgoPromise<string> {
     getLogger().info(`rest_api_create_subscription_id`);
-
     if (!accessToken) {
         throw new Error(`Access token not passed`);
     }
@@ -42,22 +42,26 @@ export function createSubscription(accessToken : string, subscriptionPayload : S
         throw new Error(`Expected subscription payload to be passed`);
     }
 
-    const headers : Object = {
-        'Authorization':                 `Bearer ${ accessToken }`,
-        'PayPal-Partner-Attribution-Id': partnerAttributionID
-    };
 
-    return request({
-        method: `post`,
-        url:    CREATE_SUBSCRIPTIONS_API_URL,
-        headers,
-        json:   subscriptionPayload
-    }).then(({ body }) : string => {
+    return createAccessToken(clientID, merchantID).then((accessToken) : string => {
+        debugger;
+        const headers : Object = {
+            'Authorization':                 `Bearer ${ accessToken }`,
+            'PayPal-Partner-Attribution-Id': partnerAttributionID || ''
+        };
 
-        if (!body || !body.id) {
-            throw new Error(`Create Subscription Api response error:\n\n${ JSON.stringify(body, null, 4) }`);
-        }
-        return body.id;
+        return request({
+            method: `post`,
+            url:    CREATE_SUBSCRIPTIONS_API_URL,
+            headers,
+            json:   subscriptionPayload
+        }).then(({ body }) : string => {
+
+            if (!body || !body.id) {
+                throw new Error(`Create Subscription Api response error:\n\n${ JSON.stringify(body, null, 4) }`);
+            }
+            return body.id;
+        });
     });
 }
 
