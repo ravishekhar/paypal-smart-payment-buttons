@@ -9,12 +9,19 @@ import { HEADERS } from '../constants';
 
 import { callGraphQL } from './api';
 
-export function createAccessToken (clientID : string, targetSubject: string) : ZalgoPromise<string> {
+export function createAccessToken (clientID : string, targetSubject : string) : ZalgoPromise<string> {
     return inlineMemoize(createAccessToken, () => {
 
         getLogger().info(`rest_api_create_access_token`);
 
         const basicAuth = base64encode(`${ clientID }:`);
+        const data = {
+            grant_type: `client_credentials`
+        };
+
+        if (targetSubject) {
+            data.target_subject = targetSubject;
+        }
 
         return request({
 
@@ -23,10 +30,7 @@ export function createAccessToken (clientID : string, targetSubject: string) : Z
             headers: {
                 Authorization: `Basic ${ basicAuth }`
             },
-            data: {
-                grant_type: `client_credentials`,
-                target_subject: targetSubject
-            }
+            data
 
         }).then(({ body }) => {
 
