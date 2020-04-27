@@ -1606,13 +1606,13 @@
             }));
         }
         memoize((function(orderID) {
-            var _headers15;
+            var _headers16;
             return callGraphQL({
                 query: "\n            query GetCheckoutDetails($orderID: String!) {\n                checkoutSession(token: $orderID) {\n                    cart {\n                        intent\n                        amounts {\n                            total {\n                                currencyCode\n                            }\n                        }\n                        shippingAddress {\n                            isFullAddress\n                        }\n                    }\n                    flags {\n                        hideShipping\n                        isShippingAddressRequired\n                        isChangeShippingAddressAllowed\n                    }\n                }\n            }\n        ",
                 variables: {
                     orderID: orderID
                 },
-                headers: (_headers15 = {}, _headers15["paypal-client-context"] = orderID, _headers15)
+                headers: (_headers16 = {}, _headers16["paypal-client-context"] = orderID, _headers16)
             });
         }));
         memoize((function(config) {
@@ -2438,11 +2438,10 @@
                                     var _headers14;
                                     var orderID = _ref10.orderID;
                                     return callGraphQL({
-                                        query: "\n            mutation ApproveOrder(\n                $orderID : String!\n                $planID : String\n                $instrumentID : String\n            ) {\n                approvePayment(\n                    token: $orderID\n                    selectedPlanId: $planID\n                    selectedInstrumentId : $instrumentID\n                ) {\n                    buyer {\n                        userId\n                    }\n                }\n            }\n        ",
+                                        query: "\n            mutation ApproveOrder(\n                $orderID : String!\n                $planID : String!\n            ) {\n                approvePayment(\n                    token: $orderID\n                    selectedPlanId: $planID\n                ) {\n                    buyer {\n                        userId\n                    }\n                }\n            }\n        ",
                                         variables: {
                                             orderID: orderID,
-                                            planID: _ref10.planID,
-                                            instrumentID: _ref10.instrumentID
+                                            planID: _ref10.planID
                                         },
                                         headers: (_headers14 = {}, _headers14["x-paypal-internal-euat"] = _ref10.buyerAccessToken, 
                                         _headers14["paypal-client-context"] = orderID, _headers14)
