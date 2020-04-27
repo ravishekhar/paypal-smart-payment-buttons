@@ -29,14 +29,14 @@ export type SubscriptionCreateRequest = {|
 export type SubscriptionResponse = {||};
 
 type SubscriptionOptions = {|
-    clientID : string,
-    merchantID : $ReadOnlyArray<string>,
-    partnerAttributionID : ?string
+    clientID : ?string,
+    merchantID? : $ReadOnlyArray<string>,
+    partnerAttributionID? : string
 |};
 
 
 // Create Subscription Request method
-function createRequest(accessToken : string, subscriptionPayload : SubscriptionCreateRequest, partnerAttributionID : string) : ZalgoPromise<string> {
+function createRequest(accessToken : string, subscriptionPayload : SubscriptionCreateRequest, partnerAttributionID? : string) : ZalgoPromise<string> {
     const headers : Object = {
         'Authorization':                 `Bearer ${ accessToken }`,
         'PayPal-Partner-Attribution-Id': partnerAttributionID || ''
@@ -58,26 +58,26 @@ function createRequest(accessToken : string, subscriptionPayload : SubscriptionC
 
 export function createSubscription(accessToken : string, subscriptionPayload : SubscriptionCreateRequest, { partnerAttributionID, merchantID, clientID } : SubscriptionOptions) : ZalgoPromise<string> {
     getLogger().info(`rest_api_create_subscription_id`);
-    if (!accessToken) {
-        throw new Error(`Access token not passed`);
-    }
 
     if (!subscriptionPayload) {
         throw new Error(`Expected subscription payload to be passed`);
     }
 
-    if (merchantID && merchantID[0]) {
+    if (merchantID) {
         getLogger().info(`rest_api_subscriptions_recreate_access_token`);
-        return createAccessToken(clientID, merchantID[0]).then((thirdPartyAccessToken) : string => {
+        return createAccessToken(clientID, merchantID).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
             return createRequest(thirdPartyAccessToken, subscriptionPayload, partnerAttributionID);
         });
+    }
+
+    if (!accessToken) {
+        throw new Error(`Access token not passed`);
     }
     return createRequest(accessToken, subscriptionPayload, partnerAttributionID);
 }
 
 // Revise Subscription API request
-
-function reviseRequest(accessToken : string, subscriptionID : string, subscriptionPayload : ?SubscriptionCreateRequest, partnerAttributionID : string) : ZalgoPromise<string> {
+function reviseRequest(accessToken : string, subscriptionID : string, subscriptionPayload : ?SubscriptionCreateRequest, partnerAttributionID? : string) : ZalgoPromise<string> {
     const headers : Object = {
         'Authorization':                 `Bearer ${ accessToken }`,
         'PayPal-Partner-Attribution-Id': partnerAttributionID || ''
@@ -101,10 +101,6 @@ function reviseRequest(accessToken : string, subscriptionID : string, subscripti
 export function reviseSubscription(accessToken : string, subscriptionID : string, subscriptionPayload : ?SubscriptionCreateRequest, { partnerAttributionID, merchantID, clientID } : SubscriptionOptions) : ZalgoPromise<string> {
     getLogger().info(`rest_api_create_subscription_id`);
 
-    if (!accessToken) {
-        throw new Error(`Access token not passed`);
-    }
-
     if (!subscriptionID) {
         throw new Error(`Expected subscription id to be passed as first argument to revise subscription api`);
     }
@@ -113,11 +109,15 @@ export function reviseSubscription(accessToken : string, subscriptionID : string
         throw new Error(`Expected subscription payload to be passed`);
     }
 
-    if (merchantID && merchantID[0]) {
+    if (merchantID) {
         getLogger().info(`rest_api_subscriptions_recreate_access_token`);
-        return createAccessToken(clientID, merchantID[0]).then((thirdPartyAccessToken) : string => {
+        return createAccessToken(clientID, merchantID).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
             return reviseRequest(thirdPartyAccessToken, subscriptionID, subscriptionPayload, partnerAttributionID);
         });
+    }
+
+    if (!accessToken) {
+        throw new Error(`Access token not passed`);
     }
     return reviseRequest(accessToken, subscriptionID, subscriptionPayload, partnerAttributionID);
 }

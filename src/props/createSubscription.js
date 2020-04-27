@@ -21,13 +21,13 @@ export function buildXCreateSubscriptionData() : XCreateSubscriptionDataType {
     return {};
 }
 
-export function buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID, merchantID, clientID } : {| facilitatorAccessToken : string, partnerAttributionID : ?string, merchantID: ?$ReadOnlyArray<string>, clientID: string |}) : XCreateSubscriptionActionsType {
+export function buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID, merchantID, clientID } : {| facilitatorAccessToken : string, partnerAttributionID? : string, merchantID? : $ReadOnlyArray<string>, clientID : ?string |}) : XCreateSubscriptionActionsType {
     const create = (data) => {
         return createSubcriptionID(facilitatorAccessToken, data, { partnerAttributionID, merchantID, clientID });
     };
 
     const revise = (subscriptionID : string, data) => {
-        return reviseSubscription(facilitatorAccessToken, subscriptionID, data, { partnerAttributionID });
+        return reviseSubscription(facilitatorAccessToken, subscriptionID, data, { partnerAttributionID, merchantID, clientID });
     };
 
     return {
@@ -39,15 +39,15 @@ export type CreateSubscription = XCreateSubscription;
 
 type CreateSubscriptionXProps = {|
     createSubscription : ?XCreateSubscription,
-    partnerAttributionID : ?string,
-    merchantID : ?$ReadOnlyArray<string>,
-    clientID : string
+    partnerAttributionID? : string,
+    merchantID? : $ReadOnlyArray<string>,
+    clientID : ?string
 |};
 
 export function getCreateSubscription({ createSubscription, partnerAttributionID, merchantID, clientID } : CreateSubscriptionXProps, { facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : ?CreateSubscription {
     if (createSubscription) {
         // Recreate the accessToken if merchantId is passed.
-        if (merchantID && merchantID[0]) {
+        if (merchantID) {
             getLogger().info(`src_props_subscriptions_recreate_access_token_cache`);
             createAccessToken(clientID, merchantID);
         }
