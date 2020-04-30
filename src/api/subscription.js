@@ -65,7 +65,7 @@ export function createSubscription(accessToken : string, subscriptionPayload : S
 
     if (merchantID) {
         getLogger().info(`rest_api_subscriptions_recreate_access_token`);
-        return createAccessToken(clientID, merchantID).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
+        return createAccessToken(clientID, { targetSubject: merchantID }).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
             return createRequest(thirdPartyAccessToken, subscriptionPayload, partnerAttributionID);
         });
     }
@@ -111,7 +111,7 @@ export function reviseSubscription(accessToken : string, subscriptionID : string
 
     if (merchantID) {
         getLogger().info(`rest_api_subscriptions_recreate_access_token`);
-        return createAccessToken(clientID, merchantID).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
+        return createAccessToken(clientID, { targetSubject: merchantID }).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
             return reviseRequest(thirdPartyAccessToken, subscriptionID, subscriptionPayload, partnerAttributionID);
         });
     }

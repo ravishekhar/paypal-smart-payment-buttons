@@ -49,7 +49,7 @@ export function getCreateSubscription({ createSubscription, partnerAttributionID
         // Recreate the accessToken if merchantId is passed.
         if (merchantID) {
             getLogger().info(`src_props_subscriptions_recreate_access_token_cache`);
-            createAccessToken(clientID, merchantID);
+            createAccessToken(clientID, { targetSubject: merchantID });
         }
         return () => {
             return createSubscription(buildXCreateSubscriptionData(), buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID, merchantID, clientID })).then(subscriptionID => {

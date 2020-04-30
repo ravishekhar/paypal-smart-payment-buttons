@@ -9,7 +9,11 @@ import { HEADERS } from '../constants';
 
 import { callGraphQL } from './api';
 
-export function createAccessToken (clientID : ?string, targetSubject? : $ReadOnlyArray<string>) : ZalgoPromise<string> {
+type GenerateAccessTokenOptions = {|
+    targetSubject? : $ReadOnlyArray<string>
+|};
+
+export function createAccessToken(clientID : ?string, { targetSubject } : GenerateAccessTokenOptions = {}) : ZalgoPromise<string> {
     return inlineMemoize(createAccessToken, () => {
 
         getLogger().info(`rest_api_create_access_token`);
