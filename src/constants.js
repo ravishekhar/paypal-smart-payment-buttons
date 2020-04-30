@@ -138,3 +138,7 @@ export const USER_ACTION = {
     COMMIT:   'commit',
     CONTINUE: 'continue'
 };
+
+export const FRAME_NAME = {
+    SMART_FIELDS: 'smart-fields'
+};

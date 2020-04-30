@@ -4,7 +4,7 @@ import type { CrossDomainWindowType } from 'cross-domain-utils/src';
 import type { ZalgoPromise } from 'zalgo-promise/src';
 import { ENV, INTENT, COUNTRY, FUNDING, PLATFORM, CURRENCY } from '@paypal/sdk-constants/src';
 
-import type { FundingEligibilityType, CheckoutFlowType, PersonalizationType, LocaleType } from '../types';
+import type { FundingEligibilityType, CheckoutFlowType, PersonalizationType, LocaleType, SmartFields } from '../types';
 import { getNonce, promiseNoop } from '../lib';
 import { getCreateOrder } from '../props/createOrder';
 import { getOnApprove } from '../props/onApprove';
@@ -108,7 +108,7 @@ function getXProps() : WalletXProps {
     throw new Error(`No xprops found`);
 }
 
-export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : WalletProps {
+export function getProps({ facilitatorAccessToken, smartFields } : {| facilitatorAccessToken : string, smartFields? : ?SmartFields |}) : WalletProps {
 
     const xprops = getXProps();
 
@@ -140,7 +140,7 @@ export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken 
 
     const merchantDomain = (typeof getParentDomain === 'function') ? getParentDomain() : 'unknown';
     
-    const createOrder = getCreateOrder({ createOrder: xprops.createOrder, currency, intent, merchantID, partnerAttributionID }, { facilitatorAccessToken });
+    const createOrder = getCreateOrder({ createOrder: xprops.createOrder, currency, intent, merchantID, partnerAttributionID }, { facilitatorAccessToken, smartFields });
 
     const onApprove = getOnApprove({ onApprove: xprops.onApprove, intent, onError, partnerAttributionID, upgradeLSAT: false }, { facilitatorAccessToken, createOrder });
     const onCancel = getOnCancel({ onCancel: xprops.onCancel, onError }, { createOrder });

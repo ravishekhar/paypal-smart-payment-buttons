@@ -5,7 +5,7 @@ import { ENV, INTENT, COUNTRY, FUNDING, CARD, PLATFORM, CURRENCY } from '@paypal
 import type { ZalgoPromise } from 'zalgo-promise/src';
 
 import type { ContentType, LocaleType, ProxyWindow, FundingEligibilityType, Wallet, CheckoutFlowType, CardFieldsFlowType,
-    ThreeDomainSecureFlowType, PersonalizationType, MenuFlowType } from '../types';
+    ThreeDomainSecureFlowType, PersonalizationType, MenuFlowType, SmartFields } from '../types';
 import type { CreateOrder, XCreateOrder, CreateBillingAgreement, XCreateBillingAgreement, OnInit, XOnInit,
     OnApprove, XOnApprove, OnCancel, XOnCancel, OnClick, XOnClick, OnShippingChange, XOnShippingChange, XOnError, OnError,
     XGetPopupBridge, GetPopupBridge, XCreateSubscription, RememberFunding, GetPageURL } from '../props';
@@ -134,7 +134,12 @@ export type ButtonProps = {|
     onShippingChange : ?OnShippingChange
 |};
 
-export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : ButtonProps {
+type GetPropsOptions = {|
+    facilitatorAccessToken : string,
+    smartFields? : ?SmartFields
+|};
+
+export function getProps({ facilitatorAccessToken, smartFields } : GetPropsOptions) : ButtonProps {
 
     const xprops : ButtonXProps = window.xprops;
 
@@ -202,7 +207,7 @@ export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken 
     const createBillingAgreement = getCreateBillingAgreement({ createBillingAgreement: xprops.createBillingAgreement });
     const createSubscription = getCreateSubscription({ createSubscription: xprops.createSubscription, partnerAttributionID }, { facilitatorAccessToken });
     
-    const createOrder = getCreateOrder({ createOrder: xprops.createOrder, currency, intent, merchantID, partnerAttributionID }, { facilitatorAccessToken, createBillingAgreement, createSubscription });
+    const createOrder = getCreateOrder({ createOrder: xprops.createOrder, currency, intent, merchantID, partnerAttributionID }, { facilitatorAccessToken, createBillingAgreement, createSubscription, smartFields });
 
     const onApprove = getOnApprove({ onApprove: xprops.onApprove, intent, onError, partnerAttributionID, upgradeLSAT }, { facilitatorAccessToken, createOrder });
     const onCancel = getOnCancel({ onCancel: xprops.onCancel, onError }, { createOrder });

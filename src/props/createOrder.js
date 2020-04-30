@@ -5,7 +5,8 @@ import { memoize, getQueryParam } from 'belter/src';
 import { FPTI_KEY, SDK_QUERY_KEYS, INTENT, CURRENCY } from '@paypal/sdk-constants/src';
 import { getDomain } from 'cross-domain-utils/src';
 
-import { createOrderID, billingTokenToOrderID, subscriptionIdToCartId, createPaymentToken } from '../api';
+import type { SmartFields } from '../types';
+import { createOrderID, billingTokenToOrderID, subscriptionIdToCartId, createPaymentToken, ORDER_ERROR_CODE } from '../api';
 import { FPTI_STATE, FPTI_TRANSITION, FPTI_CONTEXT_TYPE } from '../constants';
 import { getLogger } from '../lib';
 import { ENABLE_PAYMENT_API } from '../config';
@@ -42,11 +43,14 @@ type OrderOptions = {|
     intent : $Values<typeof INTENT>,
     currency : $Values<typeof CURRENCY>,
     merchantID : $ReadOnlyArray<string>,
-    partnerAttributionID : ?string
+    partnerAttributionID : ?string,
+    smartFields? : ?SmartFields
 |};
 
-export function buildOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID } : OrderOptions) : OrderActions {
+export function buildOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID, smartFields } : OrderOptions) : OrderActions {
     const create = (data) => {
+
+        const fields = smartFields ? smartFields.getFields() : null;
     
         let order : Object = { ...data };
     
@@ -79,11 +83,27 @@ export function buildOrderActions({ facilitatorAccessToken, intent, currency, me
                     merchant_id: merchantID[0]
                 };
             }
+
+            const address = fields && fields.address;
+            if (address) {
+                unit.shipping = unit.shipping || {};
+                unit.shipping.address = unit.shipping.address || {};
+                unit.shipping.address.address_line_1 = unit.shipping.address.address_line_1 || address.street;
+                unit.shipping.address.address_line_2 = unit.shipping.address.address_line_2 || address.street2;
+                unit.shipping.address.admin_area_2 = unit.shipping.address.admin_area_2 || address.city;
+                unit.shipping.address.admin_area_1 = unit.shipping.address.admin_area_1 || address.state;
+                unit.shipping.address.postal_code = unit.shipping.address.postal_code || address.postcode;
+                unit.shipping.address.country_code = unit.shipping.address.country_code || address.country;
+            }
     
             return { ...unit, payee, amount: { ...unit.amount, currency_code: currency } };
         });
     
         order.application_context = order.application_context || {};
+
+        if (fields && fields.address) {
+            order.application_context.shipping_preference = 'SET_PROVIDED_ADDRESS';
+        }
 
         return createOrderID(order, { facilitatorAccessToken, partnerAttributionID, forceRestAPI: false });
     };
@@ -143,9 +163,9 @@ export function buildPaymentActions({ facilitatorAccessToken, intent, currency, 
     return { create };
 }
 
-export function buildXCreateOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID } : OrderOptions) : XCreateOrderActionsType {
-    const order = buildOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID });
-    const payment = buildPaymentActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID });
+export function buildXCreateOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID, smartFields } : OrderOptions) : XCreateOrderActionsType {
+    const order = buildOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID, smartFields });
+    const payment = buildPaymentActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID, smartFields });
 
     return {
         order,
@@ -161,9 +181,9 @@ type CreateOrderXProps = {|
     partnerAttributionID : ?string
 |};
 
-export function getCreateOrder({ createOrder, intent, currency, merchantID, partnerAttributionID } : CreateOrderXProps, { facilitatorAccessToken, createBillingAgreement, createSubscription } : {| facilitatorAccessToken : string, createBillingAgreement? : ?CreateBillingAgreement, createSubscription? : ?CreateSubscription |}) : CreateOrder {
+export function getCreateOrder({ createOrder, intent, currency, merchantID, partnerAttributionID } : CreateOrderXProps, { facilitatorAccessToken, createBillingAgreement, createSubscription, smartFields } : {| facilitatorAccessToken : string, createBillingAgreement? : ?CreateBillingAgreement, createSubscription? : ?CreateSubscription, smartFields : ?SmartFields |}) : CreateOrder {
     const data = buildXCreateOrderData();
-    const actions = buildXCreateOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID });
+    const actions = buildXCreateOrderActions({ facilitatorAccessToken, intent, currency, merchantID, partnerAttributionID, smartFields });
 
     return memoize(() => {
         const queryOrderID = getQueryParam('orderID');
@@ -213,6 +233,14 @@ export function getCreateOrder({ createOrder, intent, currency, merchantID, part
             }).flush();
     
             return orderID;
+
+        }).catch(err => {
+            // $FlowFixMe
+            if (err.data && err.data.name === ORDER_ERROR_CODE.INVALID_REQUEST && smartFields) {
+                smartFields.triggerValidation(err.data);
+            }
+            
+            throw err;
         });
     });
 }

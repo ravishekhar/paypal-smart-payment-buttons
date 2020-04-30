@@ -23,6 +23,10 @@ export type OrderCreateRequest = {|
         |}>
 |};
 
+export const ORDER_ERROR_CODE = {
+    INVALID_REQUEST: 'INVALID_REQUEST'
+};
+
 export type OrderResponse = {||};
 export type OrderCaptureResponse = {||};
 export type OrderGetResponse = {||};

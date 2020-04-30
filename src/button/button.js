@@ -5,7 +5,7 @@ import { COUNTRY, FPTI_KEY, FUNDING } from '@paypal/sdk-constants/src';
 import { ZalgoPromise } from 'zalgo-promise/src';
 
 import type { FundingEligibilityType, PersonalizationType, ContentType, Wallet } from '../types';
-import { fixClickFocus, getLogger } from '../lib';
+import { fixClickFocus, getLogger, getSmartFields } from '../lib';
 import { type FirebaseConfig } from '../api';
 import { DATA_ATTRIBUTES, BUYER_INTENT } from '../constants';
 import { type Payment } from '../payment-flows';
@@ -68,15 +68,29 @@ export function setupButton(opts : ButtonOpts) : ZalgoPromise<void> {
 
     let paymentProcessing = false;
 
+    const smartFields = getSmartFields();
+
     function initiatePayment({ payment } : {| payment : Payment |}) : ZalgoPromise<void> {
         return ZalgoPromise.try(() => {
             if (paymentProcessing) {
                 return;
             }
 
-            const paymentProps = getProps({ facilitatorAccessToken });
-
             const { win, fundingSource } = payment;
+
+            if (smartFields) {
+                smartFields.triggerValidation();
+
+                if (!smartFields.isValid()) {
+                    if (win) {
+                        win.close();
+                    }
+                    return;
+                }
+            }
+
+            const paymentProps = getProps({ facilitatorAccessToken, smartFields });
+
             const { onClick } = paymentProps;
 
             if (onClick) {
@@ -86,7 +100,7 @@ export function setupButton(opts : ButtonOpts) : ZalgoPromise<void> {
             if (isEnabled()) {
                 paymentProcessing = true;
 
-                return initiatePaymentFlow({ payment, config, serviceData, components, props: paymentProps }).finally(() => {
+                return initiatePaymentFlow({ config, serviceData, components, payment, props: paymentProps }).finally(() => {
                     paymentProcessing = false;
                 });
             } else  {

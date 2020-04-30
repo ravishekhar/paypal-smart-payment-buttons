@@ -340,3 +340,24 @@ export type Wallet = {|
     card : WalletPaymentType,
     credit : WalletPaymentType
 |};
+
+export type CustomFields = {|
+    address? : {|
+        street? : string,
+        street2? : string,
+        city? : string,
+        state? : string,
+        postcode? : string,
+        country? : string
+    |}
+|};
+
+type OrderResponse = {|
+    
+|};
+
+export type SmartFields = {|
+    isValid : () => boolean,
+    getFields : () => CustomFields,
+    triggerValidation : (?OrderResponse) => void
+|};
