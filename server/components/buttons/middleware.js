@@ -71,7 +71,7 @@ export function getButtonMiddleware({ logger = defaultLogger, content: smartCont
             const isCardFieldsExperimentEnabledPromise = merchantIDPromise.then(merchantID => getInlineGuestExperiment(req, { merchantID: merchantID[0], locale, buttonSessionID, buyerCountry }));
             
             const sendRiskDataPromise = riskData ? transportRiskData(req, riskData) : null;
-            const buyerAccessTokenPromise = (sendRiskDataPromise && userIDToken) ? sendRiskDataPromise.then(() => exchangeIDToken(req, gqlBatch, { logger, userIDToken })) : null;
+            const buyerAccessTokenPromise = (sendRiskDataPromise && userIDToken) ? sendRiskDataPromise.then(() => exchangeIDToken(req, gqlBatch, { logger, userIDToken, clientMetadataID })) : null;
             const buyerAccessToken = await buyerAccessTokenPromise;
 
             const nativeEligibilityPromise = resolveNativeEligibility(req, gqlBatch, {
@@ -108,7 +108,7 @@ export function getButtonMiddleware({ logger = defaultLogger, content: smartCont
                 throw err;
             }
 
-            await sendRiskDataPromise;
+            const serverRiskData = await sendRiskDataPromise;
             const render = await renderPromise;
             const client = await clientPromise;
             const fundingEligibility = await fundingEligibilityPromise;
@@ -144,7 +144,7 @@ export function getButtonMiddleware({ logger = defaultLogger, content: smartCont
 
             const setupParams = {
                 fundingEligibility, buyerCountry, cspNonce, merchantID, personalization, sdkMeta, wallet, buyerAccessToken,
-                isCardFieldsExperimentEnabled, firebaseConfig, facilitatorAccessToken, eligibility, content
+                isCardFieldsExperimentEnabled, firebaseConfig, facilitatorAccessToken, eligibility, content, serverRiskData
             };
 
             const pageHTML = `

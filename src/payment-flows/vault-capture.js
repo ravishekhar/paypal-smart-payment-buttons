@@ -31,7 +31,7 @@ function isVaultCaptureEligible({ props } : IsEligibleOptions) : boolean {
 }
 
 function isVaultCapturePaymentEligible({ payment } : IsPaymentEligibleOptions) : boolean {
-    const { win, paymentMethodID } = payment || {};
+    const { win, paymentMethodID, fundingSource } = payment;
 
     if (win) {
         return false;
@@ -41,7 +41,7 @@ function isVaultCapturePaymentEligible({ payment } : IsPaymentEligibleOptions) :
         return false;
     }
 
-    if (window.innerWidth < VAULT_MIN_WIDTH) {
+    if (window.innerWidth < VAULT_MIN_WIDTH && fundingSource === FUNDING.PAYPAL) {
         return false;
     }
 
@@ -177,7 +177,7 @@ function setupVaultMenu({ props, payment, serviceData, initiatePayment } : MenuO
     if (fundingSource === FUNDING.PAYPAL) {
         return [
             {
-                label:    content.chooseCardOrShipping,
+                label:    content.chooseCard || content.chooseCardOrShipping,
                 popup:    POPUP_OPTIONS,
                 onSelect: ({ win }) => {
                     return initiatePayment({ payment: { ...payment, win, buyerIntent: BUYER_INTENT.PAY_WITH_DIFFERENT_FUNDING_SHIPPING } });

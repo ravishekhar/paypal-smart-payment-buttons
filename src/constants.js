@@ -29,7 +29,9 @@ export const DATA_ATTRIBUTES = {
     PAYMENT_METHOD_ID: 'data-payment-method-id',
     INSTRUMENT_ID:     'data-instrument-id',
     MENU:              'data-menu',
-    NONCE:             'data-nonce'
+    NONCE:             'data-nonce',
+    RENDER_VERSION:    'data-render-version',
+    CLIENT_VERSION:    'data-client-version'
 };
 
 export const CLASS = {
@@ -135,4 +137,8 @@ export const FTPI_WALLET_KEY = {
 export const USER_ACTION = {
     COMMIT:   'commit',
     CONTINUE: 'continue'
+};
+
+export const FRAME_NAME = {
+    SMART_FIELDS: 'smart-fields'
 };

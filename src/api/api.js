@@ -33,7 +33,10 @@ export function callRestAPI<D, T>({ accessToken, method, url, data, headers } : 
         json:    data
     }).then(({ status, body, headers: responseHeaders }) : T => {
         if (status >= 300) {
-            throw new Error(`${ url } returned status: ${ status } (Corr ID: ${ responseHeaders[HEADERS.PAYPAL_DEBUG_ID] })`);
+            const err = new Error(`${ url } returned status: ${ status } (Corr ID: ${ responseHeaders[HEADERS.PAYPAL_DEBUG_ID] })`);
+            // $FlowFixMe
+            err.data = body;
+            throw err;
         }
 
         return body;

@@ -5,7 +5,7 @@ import { ENV, INTENT, COUNTRY, FUNDING, CARD, PLATFORM, CURRENCY } from '@paypal
 import type { ZalgoPromise } from 'zalgo-promise/src';
 
 import type { ContentType, LocaleType, ProxyWindow, FundingEligibilityType, Wallet, CheckoutFlowType, CardFieldsFlowType,
-    ThreeDomainSecureFlowType, PersonalizationType, MenuFlowType } from '../types';
+    ThreeDomainSecureFlowType, PersonalizationType, MenuFlowType, SmartFields } from '../types';
 import type { CreateOrder, XCreateOrder, CreateBillingAgreement, XCreateBillingAgreement, OnInit, XOnInit,
     OnApprove, XOnApprove, OnCancel, XOnCancel, OnClick, XOnClick, OnShippingChange, XOnShippingChange, XOnError, OnError,
     XGetPopupBridge, GetPopupBridge, XCreateSubscription, RememberFunding, GetPageURL } from '../props';
@@ -36,6 +36,8 @@ export type ButtonStyle = {|
     label : string,
     tagline : boolean | void
 |};
+
+export type ServerRiskData = {||};
 
 export type ButtonXProps = {|
     env : $Values<typeof ENV>,
@@ -71,6 +73,7 @@ export type ButtonXProps = {|
     getParentDomain : () => string,
     getPageUrl : GetPageURL,
     getParent : () => CrossDomainWindowType,
+    persistRiskData : ?(ServerRiskData) => ZalgoPromise<void>,
 
     stageHost : ?string,
     apiStageHost : ?string,
@@ -111,6 +114,7 @@ export type ButtonProps = {|
     merchantDomain : string,
     getPageUrl : GetPageURL,
     getParent : () => CrossDomainWindowType,
+    persistRiskData : ?(ServerRiskData) => ZalgoPromise<void>,
 
     stageHost : ?string,
     apiStageHost : ?string,
@@ -130,7 +134,12 @@ export type ButtonProps = {|
     onShippingChange : ?OnShippingChange
 |};
 
-export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : ButtonProps {
+type GetPropsOptions = {|
+    facilitatorAccessToken : string,
+    smartFields? : ?SmartFields
+|};
+
+export function getProps({ facilitatorAccessToken, smartFields } : GetPropsOptions) : ButtonProps {
 
     const xprops : ButtonXProps = window.xprops;
 
@@ -162,6 +171,7 @@ export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken 
         currency,
         intent,
         merchantID,
+        persistRiskData,
         upgradeLSAT = false
     } = xprops;
 
@@ -197,7 +207,7 @@ export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken 
     const createBillingAgreement = getCreateBillingAgreement({ createBillingAgreement: xprops.createBillingAgreement });
     const createSubscription = getCreateSubscription({ createSubscription: xprops.createSubscription, partnerAttributionID, merchantID, clientID }, { facilitatorAccessToken });
     
-    const createOrder = getCreateOrder({ createOrder: xprops.createOrder, currency, intent, merchantID, partnerAttributionID }, { facilitatorAccessToken, createBillingAgreement, createSubscription });
+    const createOrder = getCreateOrder({ createOrder: xprops.createOrder, currency, intent, merchantID, partnerAttributionID }, { facilitatorAccessToken, createBillingAgreement, createSubscription, smartFields });
 
     const onApprove = getOnApprove({ onApprove: xprops.onApprove, intent, onError, partnerAttributionID, upgradeLSAT }, { facilitatorAccessToken, createOrder });
     const onCancel = getOnCancel({ onCancel: xprops.onCancel, onError }, { createOrder });
@@ -228,6 +238,7 @@ export function getProps({ facilitatorAccessToken } : {| facilitatorAccessToken 
         getPageUrl,
         rememberFunding,
         getParent,
+        persistRiskData,
 
         enableThreeDomainSecure,
         enableStandardCardFields,
@@ -292,7 +303,8 @@ export type ServiceData = {|
         nativeCheckout : {
             [ $Values<typeof FUNDING> ] : ?boolean
         }
-    |}
+    |},
+serverRiskData : ? ServerRiskData
 |};
 
 type ServiceDataOptions = {|
@@ -311,10 +323,11 @@ type ServiceDataOptions = {|
         nativeCheckout : {
             [$Values<typeof FUNDING> ] : ?boolean
         }
-    |}
+    |},
+    serverRiskData : ?ServerRiskData
 |};
 
-export function getServiceData({ facilitatorAccessToken, sdkMeta, content, buyerGeoCountry, fundingEligibility, wallet, buyerAccessToken, personalization, serverMerchantID, eligibility } : ServiceDataOptions) : ServiceData {
+export function getServiceData({ facilitatorAccessToken, serverRiskData, sdkMeta, content, buyerGeoCountry, fundingEligibility, wallet, buyerAccessToken, personalization, serverMerchantID, eligibility } : ServiceDataOptions) : ServiceData {
     return {
         merchantID:   serverMerchantID,
         buyerCountry: buyerGeoCountry || COUNTRY.US,
@@ -325,6 +338,7 @@ export function getServiceData({ facilitatorAccessToken, sdkMeta, content, buyer
         buyerAccessToken,
         personalization,
         facilitatorAccessToken,
-        eligibility
+        eligibility,
+        serverRiskData
     };
 }

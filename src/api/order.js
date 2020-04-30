@@ -23,6 +23,10 @@ export type OrderCreateRequest = {|
         |}>
 |};
 
+export const ORDER_ERROR_CODE = {
+    INVALID_REQUEST: 'INVALID_REQUEST'
+};
+
 export type OrderResponse = {||};
 export type OrderCaptureResponse = {||};
 export type OrderGetResponse = {||};
@@ -71,13 +75,15 @@ export function getOrder(orderID : string, { facilitatorAccessToken, buyerAccess
             accessToken: facilitatorAccessToken,
             url:         `${ ORDERS_API_URL }/${ orderID }`,
             headers:     {
-                [HEADERS.PARTNER_ATTRIBUTION_ID]: partnerAttributionID || '',
-                [HEADERS.CLIENT_CONTEXT]:         orderID
+                [HEADERS.PARTNER_ATTRIBUTION_ID]: partnerAttributionID || ''
             }
         })
         : callSmartAPI({
             accessToken: buyerAccessToken,
-            url:         `${ SMART_API_URI.ORDER }/${ orderID }`
+            url:         `${ SMART_API_URI.ORDER }/${ orderID }`,
+            headers:     {
+                [HEADERS.CLIENT_CONTEXT]:         orderID
+            }
         });
 }
 
