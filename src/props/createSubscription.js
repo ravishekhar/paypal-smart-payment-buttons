@@ -47,9 +47,9 @@ type CreateSubscriptionXProps = {|
 export function getCreateSubscription({ createSubscription, partnerAttributionID, merchantID, clientID } : CreateSubscriptionXProps, { facilitatorAccessToken } : {| facilitatorAccessToken : string |}) : ?CreateSubscription {
     if (createSubscription) {
         // Recreate the accessToken if merchantId is passed.
-        if (merchantID) {
+        if (merchantID && merchantID[0]) {
             getLogger().info(`src_props_subscriptions_recreate_access_token_cache`);
-            createAccessToken(clientID, { targetSubject: merchantID });
+            createAccessToken(clientID, { targetSubject: merchantID[0] });
         }
         return () => {
             return createSubscription(buildXCreateSubscriptionData(), buildXCreateSubscriptionActions({ facilitatorAccessToken, partnerAttributionID, merchantID, clientID })).then(subscriptionID => {

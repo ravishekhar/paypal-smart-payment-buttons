@@ -10,7 +10,7 @@ import { HEADERS } from '../constants';
 import { callGraphQL } from './api';
 
 type GenerateAccessTokenOptions = {|
-    targetSubject? : $ReadOnlyArray<string>
+    targetSubject? : string
 |};
 
 export function createAccessToken(clientID : ?string, { targetSubject } : GenerateAccessTokenOptions = {}) : ZalgoPromise<string> {

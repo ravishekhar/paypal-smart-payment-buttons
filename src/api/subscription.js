@@ -63,9 +63,9 @@ export function createSubscription(accessToken : string, subscriptionPayload : S
         throw new Error(`Expected subscription payload to be passed`);
     }
 
-    if (merchantID) {
+    if (merchantID && merchantID[0]) {
         getLogger().info(`rest_api_subscriptions_recreate_access_token`);
-        return createAccessToken(clientID, { targetSubject: merchantID }).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
+        return createAccessToken(clientID, { targetSubject: merchantID[0] }).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
             return createRequest(thirdPartyAccessToken, subscriptionPayload, partnerAttributionID);
         });
     }
@@ -109,9 +109,9 @@ export function reviseSubscription(accessToken : string, subscriptionID : string
         throw new Error(`Expected subscription payload to be passed`);
     }
 
-    if (merchantID) {
+    if (merchantID && merchantID[0]) {
         getLogger().info(`rest_api_subscriptions_recreate_access_token`);
-        return createAccessToken(clientID, { targetSubject: merchantID }).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
+        return createAccessToken(clientID, { targetSubject: merchantID[0] }).then((thirdPartyAccessToken) : ZalgoPromise<string> => {
             return reviseRequest(thirdPartyAccessToken, subscriptionID, subscriptionPayload, partnerAttributionID);
         });
     }
