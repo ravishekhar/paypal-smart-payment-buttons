@@ -49,6 +49,7 @@ const PERSONALIZATION_QUERY = `
         $locale: LocaleInput!,
         $label: ButtonLabels,
         $period: String
+        $taglineEnabled: Boolean
     ) {
         checkoutCustomization(
             clientId: $clientID,
@@ -64,7 +65,8 @@ const PERSONALIZATION_QUERY = `
             userAgent: $userAgent,
             locale: $locale,
             buttonLabel: $label,
-            installmentPeriod: $period
+            installmentPeriod: $period,
+            taglineEnabled: $taglineEnabled
         ) {
             tagline {
                 text
@@ -96,7 +98,8 @@ export type PersonalizationOptions = {|
     commit : $Values<typeof COMMIT>,
     vault : $Values<typeof VAULT>,
     label : string,
-    period : ?number
+    period : ?number,
+    tagline? : boolean | string
 |};
 
 function getDefaultPersonalization() : Personalization {
@@ -128,7 +131,7 @@ function contentToJSX(content : string) : ComponentFunctionType<PersonalizationC
 
 export async function resolvePersonalization(req : ExpressRequest, gqlBatch : GraphQLBatchCall, personalizationOptions : PersonalizationOptions) : Promise<Personalization> {
     let { logger, clientID, merchantID, locale, buyerCountry, buttonSessionID, currency,
-        intent, commit, vault, label, period } = personalizationOptions;
+        intent, commit, vault, label, period, tagline } = personalizationOptions;
 
     const ip = req.ip;
     const cookies = req.get('cookie') || '';
@@ -137,12 +140,13 @@ export async function resolvePersonalization(req : ExpressRequest, gqlBatch : Gr
     intent = intent ? intent.toUpperCase() : intent;
     label = label ? label.toUpperCase() : label;
 
+    const taglineEnabled = tagline === true || tagline === 'true';
     try {
         const result = await gqlBatch({
             query:     PERSONALIZATION_QUERY,
             variables: {
                 clientID, merchantID, locale, buyerCountry, currency, intent, commit, vault, ip, cookies, userAgent,
-                buttonSessionID, label, period
+                buttonSessionID, label, period, taglineEnabled
             }
         });
 
